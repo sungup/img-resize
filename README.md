@@ -2,7 +2,13 @@
 
 CLI based image resizing tool
 
-## Build
+## Install
+
+```bash
+$ go get github.com/sungup/img-resize/cmd/img-resize
+```
+
+And you can run `img-resize` on your terminal.
 
 ## Usage
 
