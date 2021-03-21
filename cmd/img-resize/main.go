@@ -20,6 +20,8 @@ const (
 
 	DefaultConvertInterval = time.Second
 	DefaultKeepFileDate    = true
+
+	DefaultDirPermission = 0755
 )
 
 func argParse() (internal.Options, []string, error) {
@@ -31,8 +33,8 @@ func argParse() (internal.Options, []string, error) {
 
 	flag.StringVar(&opts.DestDir, "dest", DefaultDestDir, "destination path")
 	flag.StringVar(&format, "format", DefaultDestFormat.String(), "converted file format [jpg|png]")
-	flag.IntVar(&opts.Width, "width", DefaultDestWidth, "reduced width size")
-	flag.IntVar(&opts.Height, "height", DefaultDestHeight, "reduced height size")
+	flag.UintVar(&opts.Width, "width", DefaultDestWidth, "reduced width size")
+	flag.UintVar(&opts.Height, "height", DefaultDestHeight, "reduced height size")
 	flag.IntVar(&opts.Quality, "quality", DefaultDestQuality, "converted image quality")
 	flag.DurationVar(&opts.ConvertInterval, "interval", DefaultConvertInterval, "converting interval")
 	flag.BoolVar(&opts.KeepFileDate, "keep-filedate", DefaultKeepFileDate, "keep original file atime and mtime")
@@ -72,11 +74,21 @@ func main() {
 	// 3. sort files in time-inorder
 	sort.Sort(internal.ByMDate(convertList))
 
-	// 4. convert files into dest
-	for _, item := range convertList {
-		// TODO call convert
-		log.Println(item)
+	// 4. create destination directory if possible
+	if err := os.MkdirAll(opts.DestDir, DefaultDirPermission); err != nil {
+		log.Fatalf("Error: %v\n", err)
+	}
 
-		time.Sleep(opts.ConvertInterval)
+	// 4. convert files into dest
+	sleepTerm := time.Duration(0)
+
+	for _, item := range convertList {
+		time.Sleep(sleepTerm)
+
+		if err := item.Convert(); err != nil {
+			log.Printf("Convert failed: %v\n", err)
+		}
+
+		sleepTerm = opts.ConvertInterval
 	}
 }

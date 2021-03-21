@@ -10,9 +10,9 @@ type Options struct {
 	DestDir string
 	Format  resizer.ImgFormat
 
-	Width   int // new file width
-	Height  int // new file height
-	Quality int // convert format for JPEG
+	Width   uint // new file width
+	Height  uint // new file height
+	Quality int  // convert format for JPEG
 
 	ConvertInterval time.Duration
 	KeepFileDate    bool
